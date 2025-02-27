@@ -1,7 +1,7 @@
 ﻿# Tutorial 1: Hello World!
 
 Once you have the IDE and library set up, create a new file named `HELLO.C`. 
-All programming using Draw13 is done using C89, [which has a few major differences from modern C](https://cw.fel.cvut.cz/old/_media/courses/be5b99cpl/lectures/be5b99cpl-lec10-handout-3x3.pdf).
+All programming using Draw13 is done using C89, which has a [few major differences](https://cw.fel.cvut.cz/old/_media/courses/be5b99cpl/lectures/be5b99cpl-lec10-handout-3x3.pdf) from modern C.
 
 Here is a simple Hello World file. Don't worry, I'll explain everything afterwards:
 ```c
@@ -34,9 +34,9 @@ int main() {
 
 !!! note
 
-	See [functions reference](https://google.com) for more in-depth information.
+	See [functions reference](/reference/systemfunctions) for more in-depth information.
 
-Compile and run in the IDE by using (`Alt+R->Enter`). Compile in the command line using `tcc -IC:\TC\INCLUDE -LC:\TC\LIB -ml HELLO.C D13LIB.lib`. You should see the text "Hello World!" in the top-left of the screen. Press any key to exit. 
+Compile and run in the IDE by using (`Alt+R->Enter`) or in the command line by running `tcc -IC:\TC\INCLUDE -LC:\TC\LIB -ml HELLO.C D13LIB.lib`. You should see the text "Hello World!" in the top-left of the screen. Press any key to exit. 
 
 By default, `printf()` puts text on the screen as if it were in the command line. I use this primarily for debugging, but it could also be used to show [ASCII art](https://en.wikipedia.org/wiki/ASCII_art). 
 
