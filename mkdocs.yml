@@ -1,8 +1,20 @@
 site_name: Draw13
-nav:
-  - Home: index.md
-  - Getting Started: getting_started.md
-  - Tutorial: tutorial.md
-  - Functions:
-      - Shapes: shapes.md
-theme: readthedocs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.footnote.tooltips
+  palette:
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - footnotes
+  - admonition
+  - pymdownx.details
+  - def_list
+
