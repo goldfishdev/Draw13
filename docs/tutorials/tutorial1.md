@@ -42,6 +42,6 @@ By default, `printf()` puts text on the screen as if it were in the command line
 
 Congratulations! You've made a program! Check out [Tutorial 2 - Drawing](tutorial2.md) for drawing pixels and shapes. 
 
-[^1]: [`set_vga_mode()` docs](https://google.com)
-[^2]: [`getch()` docs](https://google.com)
-[^3]: [`set_text_mode()` docs](https://google.com)
+[^1]: [`set_vga_mode()` docs](/reference/systemfunctions#set_vga_mode)
+[^2]: [`getch()` docs](/reference/input.md)
+[^3]: [`set_text_mode()` docs](reference/systemfunctions.md#set_text_mode)

@@ -52,5 +52,5 @@ See [Tutorial 1 - Basic Program](tutorials/tutorial1.md) for a simple example.
 3. Use `set_text_mode();`[^3] to exit Mode 13h. 
 
  [^1]: I have not tested anything on an actual DOS system. Testers are appreciated.
- [^2]: [`set_vga_mode()` docs](https://google.com)
- [^3]: [`set_text_mode()` docs](https://google.com)
+ [^2]: [`set_vga_mode()` docs](reference/systemfunctions.md#set_vga_mode)
+ [^3]: [`set_text_mode()` docs](reference/systemfunctions.md#set_text_mode)
