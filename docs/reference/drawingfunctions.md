@@ -1,7 +1,7 @@
 
 
 # Drawing Functions
-Also see [colors reference](colors.md).
+Also see [colors reference](/reference/colors).
 
 ### `put_pixel`
 ```c
