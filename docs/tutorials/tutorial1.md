@@ -1,4 +1,7 @@
-﻿# Tutorial 1: Hello World!
+﻿
+# Tutorial 1: Hello World!
+
+Make sure you've followed the instructions in  [Getting Started](getting_started.md)
 
 Once you have the IDE and library set up, create a new file named `HELLO.C`. 
 All programming using Draw13 is done using C89, [which has a few major differences from modern C](https://cw.fel.cvut.cz/old/_media/courses/be5b99cpl/lectures/be5b99cpl-lec10-handout-3x3.pdf).

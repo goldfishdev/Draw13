@@ -7,7 +7,7 @@ Everything in this project is coded entirely in DOS using tools released before 
 Why? Because it's fun. 
 
 See [Getting Started](getting_started.md) to install Turbo C and the library.
-See [Tutorial 1](tutorials/tutorial1.md) for basic use instructions.
+See [Tutorial 1](tutorials/tutorial1.md) for a basic project setup tutorial.
 
 I've created these docs not only to help with using Draw13, but also to provide info for anyone who is interested in DOS programming. 
 Want something to be added to the docs? Open an issue! 

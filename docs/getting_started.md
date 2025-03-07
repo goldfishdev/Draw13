@@ -1,4 +1,5 @@
-﻿# Getting Started
+﻿
+# Getting Started
 
 This tutorial is for Linux, so not all instructions will apply to other systems.
 
@@ -48,8 +49,9 @@ To use Draw13, you can either download the prebuilt library in [Releases](https:
 ## Usage
 See [Tutorial 1 - Basic Program](tutorials/tutorial1.md) for a simple example.
 1. Use `#include "d13lib.h"`
-2. Use `set_vga_mode();`[^2] to start the graphical mode. 
-3. Use `set_text_mode();`[^3] to exit Mode 13h. 
+2. Go to Directories (Alt+O -> D) and set the Output and Source directories to your project.
+3. Use `set_vga_mode();`[^2] to start the graphical mode. 
+4. Use `set_text_mode();`[^3] to exit Mode 13h. 
 
  [^1]: I have not tested anything on an actual DOS system. Testers are appreciated.
  [^2]: [`set_vga_mode()` docs](reference/systemfunctions.md#set_vga_mode)
