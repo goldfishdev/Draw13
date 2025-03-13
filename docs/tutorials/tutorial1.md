@@ -39,7 +39,7 @@ int main() {
 
 	See [functions reference](/reference/systemfunctions) for more in-depth information.
 
-Compile and run in the IDE by using (`Alt+R->Enter`) or in the command line by running `tcc -IC:\TC\INCLUDE -LC:\TC\LIB -ml HELLO.C D13LIB.lib`. You should see the text "Hello World!" in the top-left of the screen. Press any key to exit. 
+Compile and run in the IDE (if it actually works. See [USAGE WARNING](getting_started)) by using (`Alt+R->Enter`) or in the command line by running `tcc -IC:\TC\INCLUDE -LC:\TC\LIB -ml HELLO.C D13LIB.lib`. You should see the text "Hello World!" in the top-left of the screen. Press any key to exit. 
 
 By default, `printf()` puts text on the screen as if it were in the command line. I use this primarily for debugging, but it could also be used to show [ASCII art](https://en.wikipedia.org/wiki/ASCII_art). 
 

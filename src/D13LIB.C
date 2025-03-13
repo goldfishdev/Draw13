@@ -1,5 +1,6 @@
+// I probably don't need some of these. will remove eventually
 #include <conio.h>
-#include <stdio.h>
+#include <stdo.h>
 #include <math.h>
 #include <dos.h>
 #include <alloc.h>
@@ -8,14 +9,21 @@
 // WORKING:
 //	- Rectangles
 //	- Lines
+//	- Double Buffering! I think
 // WIP:
 //	- Circles
 // 	- Text
 //	- Drawing shapes using Vectors
 // TODO:
 //	- Image loading (PPM)
-//	- Create Shape 'objects' and move them
+//	- Create Shape 'objects'
 //	- Attach color codes to names
+// MAYBE AT SOME POINT:
+// 	other vga modes?
+//	2d layers?
+//	raycasting?
+
+unsigned char far buffer[320L*200]; // create buffer
 
 // sets mode to 13h. might work for other modes. idk
 void set_vga_mode() {
@@ -33,19 +41,24 @@ void set_text_mode() {
     int86(0x10, &regs, &regs);
 }
 
-// sets screen to all black. Will add different colors soon
-void clear_screen() {
-	unsigned char far *vga = (unsigned char far*)0xA0000000L;
-	_fmemset(vga, 0, 320 * 200);
+
+void clear_buffer() { // sets to all black. will add colors at some point
+	_fmemset(buffer, 0, 320*200);
 }
 
-// puts a pixel at a position
-void put_pixel(int x, int y, unsigned char color) {
+
+void copy_buffer() { // sets vga to the buffer all at once
 	unsigned char far *vga = (unsigned char far*)0xA0000000L;
+	_fmemcpy(vga, buffer, 320*200);
+}
+
+// puts a pixel in the buffer at a position
+void put_pixel(int x, int y, unsigned char color) {
 	if (x >= 0 && x < 320 && y >= 0 && y < 200) {
-		vga[y*320+x] = color;
+		buffer[y * 320 + x] = color; // set pixel in buffer
 	}
 }
+
 
 // draw rectangle with set corners
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color) {

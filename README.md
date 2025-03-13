@@ -7,7 +7,7 @@ Everything is made exclusively using programs in DOS created before 1994.
 
 Unfortunately, I don't have a DOS PC (they're expensive now!), so I've been developing this in DOSBox. I have no idea if this is working on actual DOS systems, but it should :P
 
-Expect documentation soon!
+Expect more documentation soon!
 
 ## This is VERY EXPERIMENTAL!!!
 This is a very, very, very early version of this library. Don't expect anything to be functional.

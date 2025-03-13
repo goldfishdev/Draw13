@@ -49,7 +49,8 @@ void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color)
         }
       
   `draw_rect` draws a rectangle depending on the four points you give it. `draw_rectangle` is different, taking a Rectangle and using its properties instead. 
-  ### `draw_rectangle`
+
+### `draw_rectangle`
 ```c
 void draw_rectangle(Rectangle rect, bool filled, unsigned char color);
 ```
@@ -61,11 +62,6 @@ void draw_rectangle(Rectangle rect, bool filled, unsigned char color);
 				int y1 = rect.y;
 				int x2 = x1 + scaled_width;
 				int y2 = y1 + rect.height;
-				// use vectors for drawing?
-				//Vector2 topLeft = (Vector2){ x, y };
-				//Vector2 topRight = (Vector2){ x + rect.width, y };
-				//Vector2 bottomLeft = (Vector2){ x, y + rect.height };
-				//Vector2 bottomRight = (Vector2){ x + rect.width, y + rect.height};
 				int xc, yc;
 				if (filled == true) {
 					for (yc = y1; yc <= y2; yc++) {

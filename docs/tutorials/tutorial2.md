@@ -1,3 +1,3 @@
 # Tutorial 2: Drawing
 
-Soon...
+This tutorial will talk about drawing basic shapes. When I get around to writing it. 

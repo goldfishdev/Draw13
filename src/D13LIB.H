@@ -1,9 +1,6 @@
 #ifndef D13LIB_H
 #define D13LIB_H
 
-#include <conio.h>
-#include <dos.h>
-
 typedef enum { false, true } bool;
 
 typedef struct {
@@ -80,7 +77,8 @@ typedef struct {
 
 void set_vga_mode(void);
 void set_text_mode(void);
-void clear_screen(void);
+void clear_buffer(void);
+void copy_buffer(void);
 void put_pixel(int x, int y, unsigned char color);
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color);
 void draw_rectangle(Rectangle rect, bool filled, unsigned char color);

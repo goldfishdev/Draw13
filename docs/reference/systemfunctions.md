@@ -31,15 +31,27 @@ void set_text_mode()
 `set_text_mode()` sets the VGA display's mode to text, the default in DOS command line. By default, this is 80x25 characters. 
 If you don't use this at the end of your (graphical) program, the scaling of the command line text will be strange. 
 
-### `clear_screen`
+### `clear_buffer`
 ```c
-void clear_screen(void);
+void clear_buffer(void);
 ```
 
 ??? Implementation
 
-		void clear_screen() {
-			unsigned char far *vga = (unsigned char far*)0xA0000000L;
-			_fmemset(vga, 0, 320 * 200);
+		void clear_buffer() {
+			_fmemset(buffer, 0, 320*200);
 		}
-Clears the entire screen.
+Clears the buffer in video ram. 
+
+### `copy_buffer`
+```c
+void copy_buffer(void);
+```
+
+??? Implementation
+
+		void copy_buffer() { // sets vga to the buffer all at once
+			unsigned char far *vga = (unsigned char far*)0xA0000000L;
+			_fmemcpy(vga, buffer, 320*200);
+		}
+Copies the buffer to the screen.
