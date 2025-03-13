@@ -10,9 +10,8 @@ void put_pixel(int x, int y, unsigned char color)
 ??? Implementation
 	
         void put_pixel(int x, int y, unsigned char color) {
-			unsigned char far *vga = (unsigned char far*)0xA0000000L;
 			if (x >= 0 && x < 320 && y >= 0 && y < 200) {
-				vga[y*320+x] = color;
+				buffer[y * 320 + x] = color; // set pixel in buffer
 			}
 		}
 This is the function that all Draw13 graphics use. `put_pixel` takes a position and color. It creates a far pointer `*vga` that points to the beginning of the video memory then sets the correct byte to the given color by calculating the offset (since each row in Mode 13h is 320 pixels).
