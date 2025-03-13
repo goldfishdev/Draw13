@@ -1,6 +1,6 @@
 // I probably don't need some of these. will remove eventually
 #include <conio.h>
-#include <stdo.h>
+#include <stdio.h>
 #include <math.h>
 #include <dos.h>
 #include <alloc.h>
