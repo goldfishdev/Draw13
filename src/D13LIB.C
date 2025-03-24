@@ -26,12 +26,13 @@ void set_text_mode() {
     int86(0x10, &regs, &regs);
 }
 
-void clear_buffer() { // sets to all black. will add colors at some point
+// sets to all black. will add colors at some point
+void clear_buffer() {
 	_fmemset(buffer, 0, 320*200);
 }
 
-
-void copy_buffer() { // sets vga to the buffer all at once
+// sets vga to the buffer all at once
+void copy_buffer() {
 	unsigned char far *vga = (unsigned char far*)0xA0000000L;
 	_fmemcpy(vga, buffer, 320*200);
 }
@@ -43,12 +44,23 @@ void put_pixel(int x, int y, unsigned char color) {
 	}
 }
 
+// i could theoretically use this function to draw other shapes
+// but idk if it would be faster
+void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color) {
+	int i;
+	if (num_vertices < 2) return;
+	for (i = 0; i < num_vertices - 1; i++) {
+		draw_line(vertices[i].x, vertices[i].y,
+				  vertices[i+1].x, vertices[i+1].y, color);
+	}
+	draw_line(vertices[num_vertices-1].x, vertices[num_vertices-1].y,
+			  vertices[0].x, vertices[0].y, color);
+}
 
 // draw rectangle with set corners
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color) {
-	// holy shit, scaling sucks!!!
 	int width = x2 - x1;
-	int scaled_width = (width*4)/3; // mode13h is stretched vertically. This should make up for it
+	int scaled_width = (width*4)/3;
 	int x, y;
 	if (filled == true) {
 		for (y = y1; y <= y2; y++) {
@@ -207,8 +219,8 @@ int isKeyDown(int scanCode) {
 }
 
 
-// adapted from Adam Ward's 13h font. see FONT.TXT
-// see Fonts in the docs for more info
+// adapted from Adam Ward's 13h font
+// I'll add a fonts page in the docs for more info at some point
 // I'm sure there's a better way to do this
 //
 // sorry in advance
