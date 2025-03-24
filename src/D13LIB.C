@@ -7,6 +7,7 @@
 #include "d13lib.h"
 
 unsigned char far buffer[320L*200]; // create buffer
+volatile char keyStates[128];
 
 // sets mode to 13h. might work for other modes. idk
 void set_vga_mode() {
@@ -176,6 +177,33 @@ void draw_string(const char* txt, int x, int y, unsigned char color) {
 		current_x += KERNING;
 		i++;
 	}
+}
+
+// input
+
+void interrupt (*oldKeyboardHandler)();
+
+void interrupt keyboardHandler() {
+	static unsigned char scanCode;
+	scanCode = inportb(0x60);
+	if (scanCode & 0x80) {
+		scanCode &= 0x7F;
+		keyStates[scanCode] = 0;
+	} else {
+		keyStates[scanCode] = 1;
+	}
+	outportb(0x20, 0x20);
+	oldKeyboardHandler();
+}
+void initKeyboard() {
+	oldKeyboardHandler = getvect(9);
+	setvect(9, keyboardHandler);
+}
+void deinitKeyboard() {
+	setvect(9, oldKeyboardHandler);
+}
+int isKeyDown(int scanCode) {
+	return keyStates[scanCode];
 }
 
 

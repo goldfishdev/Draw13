@@ -72,6 +72,11 @@ typedef struct {
 #define KEY_ENTER 284
 #define KEY_SPACE 32
 
+#define KEY_UP 72
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
+#define KEY_DOWN 80
+
 #define KEY_F1 315
 #define KEY_F2 316
 #define KEY_F3 317
@@ -95,5 +100,8 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned char color);
 void draw_circle(int centerX, int centerY, int radius, unsigned char color);
 void draw_char(unsigned char ascii, int x, int y, unsigned char color);
 void draw_string(const char* txt, int x, int y, unsigned char color);
+void initKeyboard();
+void deinitKeyboard();
+int isKeyDown(int scanCode);
 
 #endif
