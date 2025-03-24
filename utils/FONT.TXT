@@ -1,19 +1,21 @@
 .NOLIST
 
+
+; I got this from an old forum post. not meant for C but I've adapted it
+
 ; By Adam Ward
 ; A font for use in mode 13h graphics programs
 
 ; 0 means a pixel is not drawn (or is drawn with a background color)
 ; 1 means the pixel is part of the font and is drawn with a foreground color
 
-BYTES_PER_CHAR = 6
-SCR_WIDTH = 320
-SCR_HEIGHT = 200
-CHAR_WIDTH = 5
-CHAR_HEIGHT = BYTES_PER_CHAR
-KERNING = CHAR_WIDTH + 1
-
-.DATA
+; I set these in my code for ease of use
+; BYTES_PER_CHAR = 6
+; SCR_WIDTH = 320
+; SCR_HEIGHT = 200
+; CHAR_WIDTH = 5
+; CHAR_HEIGHT = BYTES_PER_CHAR
+; KERNING = CHAR_WIDTH + 1
 
 ; does not provide visible characters for non-alphanumeric or non-punctuation characters
 
@@ -1043,132 +1045,4 @@ AWFont		BYTE		(BYTES_PER_CHAR * 32) DUP(0)		; the first 32 control characters ar
 			BYTE		(BYTES_PER_CHAR * 64) DUP(0)
 
 
-.CODE
-
-;-----------------------------
-DrawChar PROC,
-	ascii:BYTE,
-	x:WORD,
-	y:WORD,
-	foreColor:BYTE,
-	backColor:BYTE
-
-;	Draws a character at the coords given, in the color given
-;-----------------------------
-
-	pusha
-
-	; work out the vram offset to start drawing
-	mov ax, y
-	cwd
-	mov bx, SCR_WIDTH
-	mul bx					; screen width
-	add ax, x
-
-	mov di, ax					; set the destination pointer
-
-	movzx ax, ascii
-	cwd
-	mov bx, BYTES_PER_CHAR
-	mul bx
-	add ax, OFFSET AWFont
-
-	mov si, ax					; set the source pointer
-
-	mov al, foreColor			; store forecolor
-	mov bl, backColor			; store backcolor
-
-	mov cx, 6					; row at a time
-	L1:
-		mov dl, [si]
-		push cx
-		mov cx, CHAR_WIDTH				; one pixel at a time
-		L2:
-			rcl dl, 1
-			jc FORE
-			BACK:
-				mov es:[di], bl		; set backColor pixel
-				jmp Done
-			FORE:
-				mov es:[di], al		; set foreColor pixel
-
-			DONE:
-			inc di
-		Loop L2
-		pop cx
-		inc si
-		add di, SCR_WIDTH - CHAR_WIDTH	; move dest pointer to next scanline
-	Loop L1
-
-	popa
-	ret
-DrawChar ENDP
-
-
-;-----------------------------
-DrawString PROC,
-	msg:PTR BYTE,
-	count:PTR BYTE,			; how many chars to draw
-	x:WORD,
-	y:WORD,
-	foreColor:BYTE,
-	backColor:BYTE
-
-;	Draws characters at the coords given, in the color given.  DOES NOT WRAP TEXT.
-;	Returns:	[count] = the number of chars successfully drawn
-;-----------------------------
-
-	pusha
-
-	mov cl, BYTE PTR [count]
-
-	; test count, must be >=1
-	cmp cl, 1
-	jb BAIL
-
-	; test y, must be <= (SCR_HEIGHT - CHAR_HEIGHT)
-	cmp y, (SCR_HEIGHT - CHAR_HEIGHT)
-	ja BAIL
-
-	; test x, must be <= (SCR_WIDTH - CHAR_WIDTH)
-	cmp x, (SCR_WIDTH - CHAR_WIDTH)
-	ja BAIL
-
-
-	; work out how many characters will fit to the right of the x coordinate
-	mov ax, SCR_WIDTH
-	sub ax, x
-	cwd					; prepare for a divide
-	mov bx, KERNING
-	div bx				; horizontal distance between chars
-
-	cmp ax, [count]
-	jbe OK
-	mov ax, [count]
-	mov cx, ax
-
-	OK:
-		mov cx, ax			; the number of chars we can draw.
-		mov [count], ax
-
-		mov si, msg			; first byte in the message
-		mov bx, x			; x coord
-		mov dx, y			; y coord
-		L1:
-			INVOKE DrawChar, BYTE PTR [si], bx, dx, foreColor, backColor
-			add bx, KERNING
-			inc si
-		Loop L1
-
-	jmp DONE
-
-	BAIL:					; error with args
-		mov [count], 0
-
-	DONE:
-		popa
-		ret
-DrawString ENDP
-
-
-.LIST
+; removed code here
