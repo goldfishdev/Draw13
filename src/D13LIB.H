@@ -10,6 +10,13 @@ typedef struct {
     int height;
 } Rectangle;
 
+
+// default font info
+#define BYTES_PER_CHAR 6
+#define CHAR_WIDTH 5
+#define CHAR_HEIGHT 6
+#define KERNING 6
+
 #define KEY_A 97
 #define KEY_B 98
 #define KEY_C 99
@@ -75,6 +82,8 @@ typedef struct {
 #define KEY_F8 322
 #define KEY_F9 3
 
+extern const unsigned char DefaultFont[256 * BYTES_PER_CHAR];
+
 void set_vga_mode(void);
 void set_text_mode(void);
 void clear_buffer(void);
@@ -84,5 +93,7 @@ void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color)
 void draw_rectangle(Rectangle rect, bool filled, unsigned char color);
 void draw_line(int x1, int y1, int x2, int y2, unsigned char color);
 void draw_circle(int centerX, int centerY, int radius, unsigned char color);
+void draw_char(unsigned char ascii, int x, int y, unsigned char color);
+void draw_string(const char* txt, int x, int y, unsigned char color);
 
 #endif
