@@ -57,6 +57,25 @@ void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char col
 			  vertices[0].x, vertices[0].y, color);
 }
 
+// integer square root
+int isqrt(int num) {
+	int res = 0;
+	int bit = 1 << 14;
+	while (bit < num) {
+		bit >>= 2;
+	}
+	while (bit != 0) {
+		if (num >= res + bit) {
+			num -= res + bit;
+			res = (res >> 1) + bit;
+		} else {
+			res >>= 1;
+		}
+		bit >>= 2;
+	}
+	return res;
+}
+
 // draw rectangle with set corners
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color) {
 	int width = x2 - x1;
@@ -131,34 +150,36 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned char color) {
 	}
 }
 
-// fucked up circle. no scaling. weird corners.
-void draw_circle(int centerX, int centerY, int radius, unsigned char color) {
-	int x = 0;
-	int y = radius;
-	int d = 1 - radius;
-	int deltaE, deltaSE;
-	int scaled_y;
-	while (x <= y) {
-		scaled_y = (y * 4) / 4;
-		put_pixel(centerX + x, centerY + scaled_y, color);
-		put_pixel(centerX - x, centerY + scaled_y, color);
-		put_pixel(centerX + x, centerY - scaled_y, color);
-		put_pixel(centerX - x, centerY - scaled_y, color);
-		put_pixel(centerX + scaled_y, centerY + x, color);
-		put_pixel(centerX - scaled_y, centerY + x, color);
-		put_pixel(centerX + scaled_y, centerY - x, color);
-		put_pixel(centerX - scaled_y, centerY - x, color);
-		if (d < 0) {
-			deltaE = 2 * x + 3;
-			d += deltaE;
+// weird scaling but it's a bit better than what I had before.
+// no option for not filled yet
+void draw_ellipse(int cx, int cy, int width, int height, unsigned char color) {
+	int rx = width / 2;
+	int ry = height / 2;
+	int rx2 = rx * rx;
+	int ry2 = ry * ry;
+	int two_rx2 = 2 * rx2;
+	int two_ry2 = 2 * ry2;
+	int x, y, dx, start, end, py;
+	float ratio, p;
+	for (y = -ry; y < ry; y++) {
+		x = (rx * isqrt(ry2 - y * y)) / ry;
+
+		for (dx = -x; dx < x; dx++) {
+			put_pixel(cx + dx, cy + y, color);
 		}
-		else {
-			deltaSE = 2 * (x - y) + 5;
-			d += deltaSE;
-			y--;
-		}
-		x++;
 	}
+}
+
+// not perfect. has some weird bits sticking out. good enough ig
+void draw_circle(int centerX, int centerY, int radius, unsigned char color) {
+	int i;
+	if (num_vertices < 2) return;
+	for (i = 0; i < num_vertices - 1; i++) {
+		draw_line(vertices[i].x, vertices[i].y,
+				  vertices[i+1].x, vertices[i+1].y, color);
+	}
+	draw_line(vertices[num_vertices-1].x, vertices[num_vertices-1].y,
+			  vertices[0].x, vertices[0].y, color);
 }
 
 // draw single character
