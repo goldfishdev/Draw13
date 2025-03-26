@@ -10,6 +10,10 @@ typedef struct {
     int height;
 } Rectangle;
 
+struct Vector2 {
+    int x;
+    int y;
+};
 
 // default font info
 #define BYTES_PER_CHAR 6
@@ -104,6 +108,8 @@ void set_text_mode(void);
 void clear_buffer(void);
 void copy_buffer(void);
 void put_pixel(int x, int y, unsigned char color);
+int isqrt(int num);
+void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color);
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color);
 void draw_rectangle(Rectangle rect, bool filled, unsigned char color);
 void draw_line(int x1, int y1, int x2, int y2, unsigned char color);
@@ -113,5 +119,6 @@ void draw_string(const char* txt, int x, int y, unsigned char color);
 void initKeyboard();
 void deinitKeyboard();
 int isKeyDown(int scanCode);
+void draw_ellipse(int cx, int cy, int width, int height, unsigned char color);
 
 #endif

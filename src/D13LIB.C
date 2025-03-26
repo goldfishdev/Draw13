@@ -26,12 +26,13 @@ void set_text_mode() {
     int86(0x10, &regs, &regs);
 }
 
-void clear_buffer() { // sets to all black. will add colors at some point
+// sets to all black. will add colors at some point
+void clear_buffer() {
 	_fmemset(buffer, 0, 320*200);
 }
 
-
-void copy_buffer() { // sets vga to the buffer all at once
+// sets vga to the buffer all at once
+void copy_buffer() {
 	unsigned char far *vga = (unsigned char far*)0xA0000000L;
 	_fmemcpy(vga, buffer, 320*200);
 }
@@ -43,12 +44,42 @@ void put_pixel(int x, int y, unsigned char color) {
 	}
 }
 
+// i could theoretically use this function to draw other shapes
+// but idk if it would be faster
+void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color) {
+	int i;
+	if (num_vertices < 2) return;
+	for (i = 0; i < num_vertices - 1; i++) {
+		draw_line(vertices[i].x, vertices[i].y,
+				  vertices[i+1].x, vertices[i+1].y, color);
+	}
+	draw_line(vertices[num_vertices-1].x, vertices[num_vertices-1].y,
+			  vertices[0].x, vertices[0].y, color);
+}
+
+// integer square root
+int isqrt(int num) {
+	int res = 0;
+	int bit = 1 << 14;
+	while (bit < num) {
+		bit >>= 2;
+	}
+	while (bit != 0) {
+		if (num >= res + bit) {
+			num -= res + bit;
+			res = (res >> 1) + bit;
+		} else {
+			res >>= 1;
+		}
+		bit >>= 2;
+	}
+	return res;
+}
 
 // draw rectangle with set corners
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color) {
-	// holy shit, scaling sucks!!!
 	int width = x2 - x1;
-	int scaled_width = (width*4)/3; // mode13h is stretched vertically. This should make up for it
+	int scaled_width = (width*4)/3;
 	int x, y;
 	if (filled == true) {
 		for (y = y1; y <= y2; y++) {
@@ -119,34 +150,36 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned char color) {
 	}
 }
 
-// fucked up circle. no scaling. weird corners.
-void draw_circle(int centerX, int centerY, int radius, unsigned char color) {
-	int x = 0;
-	int y = radius;
-	int d = 1 - radius;
-	int deltaE, deltaSE;
-	int scaled_y;
-	while (x <= y) {
-		scaled_y = (y * 4) / 4;
-		put_pixel(centerX + x, centerY + scaled_y, color);
-		put_pixel(centerX - x, centerY + scaled_y, color);
-		put_pixel(centerX + x, centerY - scaled_y, color);
-		put_pixel(centerX - x, centerY - scaled_y, color);
-		put_pixel(centerX + scaled_y, centerY + x, color);
-		put_pixel(centerX - scaled_y, centerY + x, color);
-		put_pixel(centerX + scaled_y, centerY - x, color);
-		put_pixel(centerX - scaled_y, centerY - x, color);
-		if (d < 0) {
-			deltaE = 2 * x + 3;
-			d += deltaE;
+// weird scaling but it's a bit better than what I had before.
+// no option for not filled yet
+void draw_ellipse(int cx, int cy, int width, int height, unsigned char color) {
+	int rx = width / 2;
+	int ry = height / 2;
+	int rx2 = rx * rx;
+	int ry2 = ry * ry;
+	int two_rx2 = 2 * rx2;
+	int two_ry2 = 2 * ry2;
+	int x, y, dx, start, end, py;
+	float ratio, p;
+	for (y = -ry; y < ry; y++) {
+		x = (rx * isqrt(ry2 - y * y)) / ry;
+
+		for (dx = -x; dx < x; dx++) {
+			put_pixel(cx + dx, cy + y, color);
 		}
-		else {
-			deltaSE = 2 * (x - y) + 5;
-			d += deltaSE;
-			y--;
-		}
-		x++;
 	}
+}
+
+// not perfect. has some weird bits sticking out. good enough ig
+void draw_circle(int centerX, int centerY, int radius, unsigned char color) {
+	int i;
+	if (num_vertices < 2) return;
+	for (i = 0; i < num_vertices - 1; i++) {
+		draw_line(vertices[i].x, vertices[i].y,
+				  vertices[i+1].x, vertices[i+1].y, color);
+	}
+	draw_line(vertices[num_vertices-1].x, vertices[num_vertices-1].y,
+			  vertices[0].x, vertices[0].y, color);
 }
 
 // draw single character
@@ -207,8 +240,8 @@ int isKeyDown(int scanCode) {
 }
 
 
-// adapted from Adam Ward's 13h font. see FONT.TXT
-// see Fonts in the docs for more info
+// adapted from Adam Ward's 13h font
+// I'll add a fonts page in the docs for more info at some point
 // I'm sure there's a better way to do this
 //
 // sorry in advance
