@@ -157,8 +157,6 @@ void draw_ellipse(int cx, int cy, int width, int height, unsigned char color) {
 	int ry = height / 2;
 	int rx2 = rx * rx;
 	int ry2 = ry * ry;
-	int two_rx2 = 2 * rx2;
-	int two_ry2 = 2 * ry2;
 	int x, y, dx, start, end, py;
 	float ratio, p;
 	for (y = -ry; y < ry; y++) {
@@ -172,14 +170,8 @@ void draw_ellipse(int cx, int cy, int width, int height, unsigned char color) {
 
 // not perfect. has some weird bits sticking out. good enough ig
 void draw_circle(int centerX, int centerY, int radius, unsigned char color) {
-	int i;
-	if (num_vertices < 2) return;
-	for (i = 0; i < num_vertices - 1; i++) {
-		draw_line(vertices[i].x, vertices[i].y,
-				  vertices[i+1].x, vertices[i+1].y, color);
-	}
-	draw_line(vertices[num_vertices-1].x, vertices[num_vertices-1].y,
-			  vertices[0].x, vertices[0].y, color);
+	int scaled = (radius * 4 / 3);
+	draw_ellipse(cx, cy, scaled, radius, filled, color);
 }
 
 // draw single character
