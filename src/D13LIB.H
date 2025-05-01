@@ -15,6 +15,17 @@ struct Vector2 {
     int y;
 };
 
+typedef struct {
+    int width;
+    int height;
+    unsigned char *data; // RGB data: R,G,B triplets
+    int loaded;          // Flag to indicate if the image is loaded
+} Sprite;
+
+#ifndef MAX_SPRITES
+#define MAX_SPRITES 15  // max loaded images. for dev rn
+#endif
+
 // default font info
 #define BYTES_PER_CHAR 6
 #define CHAR_WIDTH 5
@@ -102,13 +113,21 @@ struct Vector2 {
 #define KEY_F12 88
 
 extern const unsigned char DefaultFont[256 * BYTES_PER_CHAR];
+extern Sprite sprites[MAX_SPRITES];
+extern int numLoadedSprites;
 
 void set_vga_mode(void);
 void set_text_mode(void);
 void clear_buffer(void);
 void copy_buffer(void);
 void put_pixel(int x, int y, unsigned char color);
+
 int isqrt(int num);
+
+void initKeyboard();
+void deinitKeyboard();
+int isKeyDown(int scanCode);
+
 void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color);
 void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color);
 void draw_rectangle(Rectangle rect, bool filled, unsigned char color);
@@ -116,9 +135,11 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned char color);
 void draw_circle(int centerX, int centerY, int radius, unsigned char color);
 void draw_char(unsigned char ascii, int x, int y, unsigned char color);
 void draw_string(const char* txt, int x, int y, unsigned char color);
-void initKeyboard();
-void deinitKeyboard();
-int isKeyDown(int scanCode);
 void draw_ellipse(int cx, int cy, int width, int height, unsigned char color);
+
+int load_sprite(const char *filename);
+void draw_sprite(int sprite_id, int x, int y);
+void free_sprite(int sprite_id);
+void free_all_sprites(void);
 
 #endif

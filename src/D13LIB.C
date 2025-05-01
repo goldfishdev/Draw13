@@ -1,7 +1,8 @@
-// I probably don't need some of these. will remove eventually
 #include <conio.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 #include <dos.h>
 #include <alloc.h>
 #include "d13lib.h"
@@ -9,8 +10,12 @@
 unsigned char far buffer[320L*200]; // create buffer
 volatile char keyStates[128];
 
+Sprite sprites[MAX_SPRITES];
+int numLoadedSprites = 0;
+
 // sets mode to 13h. might work for other modes. idk
-void set_vga_mode() {
+void set_vga_mode()
+{
 	union REGS regs;
 	regs.h.ah = 0x00;
 	regs.h.al = 0x13;
@@ -19,7 +24,8 @@ void set_vga_mode() {
 }
 
 // sets mode back to text
-void set_text_mode() {
+void set_text_mode()
+{
     union REGS regs;
     regs.h.ah = 0x00;
     regs.h.al = 0x03;  // 80x25 text mode
@@ -27,18 +33,21 @@ void set_text_mode() {
 }
 
 // sets to all black. will add colors at some point
-void clear_buffer() {
+void clear_buffer()
+{
 	_fmemset(buffer, 0, 320*200);
 }
 
 // sets vga to the buffer all at once
-void copy_buffer() {
+void copy_buffer()
+{
 	unsigned char far *vga = (unsigned char far*)0xA0000000L;
 	_fmemcpy(vga, buffer, 320*200);
 }
 
 // puts a pixel in the buffer at a position
-void put_pixel(int x, int y, unsigned char color) {
+void put_pixel(int x, int y, unsigned char color)
+{
 	if (x >= 0 && x < 320 && y >= 0 && y < 200) {
 		buffer[y * 320 + x] = color; // set pixel in buffer
 	}
@@ -46,7 +55,8 @@ void put_pixel(int x, int y, unsigned char color) {
 
 // i could theoretically use this function to draw other shapes
 // but idk if it would be faster
-void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color) {
+void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color)
+{
 	int i;
 	if (num_vertices < 2) return;
 	for (i = 0; i < num_vertices - 1; i++) {
@@ -58,7 +68,8 @@ void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char col
 }
 
 // integer square root
-int isqrt(int num) {
+int isqrt(int num)
+{
 	int res = 0;
 	int bit = 1 << 14;
 	while (bit < num) {
@@ -77,7 +88,8 @@ int isqrt(int num) {
 }
 
 // draw rectangle with set corners
-void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color) {
+void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color)
+{
 	int width = x2 - x1;
 	int scaled_width = (width*4)/3;
 	int x, y;
@@ -101,7 +113,8 @@ void draw_rect(int x1, int y1, int x2, int y2, bool filled, unsigned char color)
 }
 
 // draws rectangle using Rectangle. WIP
-void draw_rectangle(Rectangle rect, bool filled, unsigned char color) {
+void draw_rectangle(Rectangle rect, bool filled, unsigned char color)
+{
 	int scaled_width = (rect.width*4)/3;
 	int x1 = rect.x;
 	int y1 = rect.y;
@@ -128,7 +141,8 @@ void draw_rectangle(Rectangle rect, bool filled, unsigned char color) {
 }
 
 // draws a line
-void draw_line(int x1, int y1, int x2, int y2, unsigned char color) {
+void draw_line(int x1, int y1, int x2, int y2, unsigned char color)
+{
 	int dx, dy, sx, sy, err, e2;
 	dx = abs(x2 - x1);
 	dy = abs(y2 - y1);
@@ -152,7 +166,8 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned char color) {
 
 // weird scaling but it's a bit better than what I had before.
 // no option for not filled yet
-void draw_ellipse(int cx, int cy, int width, int height, unsigned char color) {
+void draw_ellipse(int cx, int cy, int width, int height, unsigned char color)
+{
 	int rx = width / 2;
 	int ry = height / 2;
 	int ry2 = ry * ry;
@@ -168,13 +183,15 @@ void draw_ellipse(int cx, int cy, int width, int height, unsigned char color) {
 }
 
 // not perfect. has some weird bits sticking out. good enough ig
-void draw_circle(int cx, int cy, int radius, unsigned char color) {
+void draw_circle(int cx, int cy, int radius, unsigned char color)
+{
 	int scaled = (radius * 4 / 3);
 	draw_ellipse(cx, cy, scaled, radius, color);
 }
 
 // draw single character
-void draw_char(unsigned char ascii, int x, int y, unsigned char color) {
+void draw_char(unsigned char ascii, int x, int y, unsigned char color)
+{
 	unsigned char byte;
 	unsigned char bit;
 	int font_offset;
@@ -192,7 +209,8 @@ void draw_char(unsigned char ascii, int x, int y, unsigned char color) {
 }
 
 // draw text. used draw_char
-void draw_string(const char* txt, int x, int y, unsigned char color) {
+void draw_string(const char* txt, int x, int y, unsigned char color)
+{
 	int i = 0;
 	int current_x = x;
 	while (txt[i] != '\0') {
@@ -207,7 +225,8 @@ void draw_string(const char* txt, int x, int y, unsigned char color) {
 
 void interrupt (*oldKeyboardHandler)();
 
-void interrupt keyboardHandler() {
+void interrupt keyboardHandler()
+{
 	static unsigned char scanCode;
 	scanCode = inportb(0x60);
 	if (scanCode & 0x80) {
@@ -219,11 +238,15 @@ void interrupt keyboardHandler() {
 	outportb(0x20, 0x20);
 	oldKeyboardHandler();
 }
-void initKeyboard() {
+
+void initKeyboard()
+{
 	oldKeyboardHandler = getvect(9);
 	setvect(9, keyboardHandler);
 }
-void deinitKeyboard() {
+
+void deinitKeyboard()
+{
 	setvect(9, oldKeyboardHandler);
 }
 int isKeyDown(int scanCode) {
@@ -231,12 +254,12 @@ int isKeyDown(int scanCode) {
 }
 
 
-// adapted from Adam Ward's 13h font
-// I'll add a fonts page in the docs for more info at some point
-// I'm sure there's a better way to do this
-//
-// sorry in advance
-
+/* adapted from Adam Ward's 13h font
+ * I'll add a fonts page in the docs for more info at some point
+ * not all characters exist, many are blank
+ * I'm sure there's a better way to do this
+ * sorry in advance
+*/
 const unsigned char DefaultFont[256 * BYTES_PER_CHAR] = {
 	/* ASCII   0 */
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -751,3 +774,256 @@ const unsigned char DefaultFont[256 * BYTES_PER_CHAR] = {
 	/* ASCII 255 */
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
+
+typedef struct {
+	unsigned char r, g, b;
+} RGB;
+
+void vga_to_rgb(RGB palette[256])
+{
+	int i;
+	for (i = 0; i < 256; i++) {
+		outp(0x3C7, i);                   /* read palette entry */
+		palette[i].r = inp(0x3C9) * 4;    /* these scale rgb to roughly 0-252 */
+		palette[i].g = inp(0x3C9) * 4;
+		palette[i].b = inp(0x3C9) * 4;
+	}
+}
+
+void rgb_to_vga(RGB palette[256])
+{
+	int i;
+	for (i = 0; i < 256; i++) {
+		outp(0x3C8, i);                   /* basically the reverse of vga_to_rgb() */
+		outp(0x3C9, palette[i].r * 63 / 255);
+		outp(0x3C9, palette[i].g * 63 / 255);
+		outp(0x3C9, palette[i].b * 63 / 255);
+	}
+}
+
+int find_closest_color(RGB color, RGB palette[256])
+{
+	int i, best_index;
+	unsigned long best_d, d;
+	long dr, dg, db;
+
+	static int cache[1<<12]; /* 12-bit cache */
+	static char inited = 0;
+
+	/* key takes the high 4 bits of each channel */
+	int key = ((color.r >> 4) << 8) | ((color.g >> 4) << 4) |  (color.b >> 4);
+
+	/* initialize cache */
+	if (!inited) {
+		for (i = 0; i < (1<<12); i++) cache[i] = -1;
+		inited = 1;
+	}
+
+	/* check cache */
+	if (cache[key] >= 0) {
+		return cache[key];
+	}
+
+	/* if not cached, go through all of palette */
+	best_index   = 0;
+	best_d = 0xFFFFFFFFUL;
+
+	for (i = 0; i < 256; i++) {
+		dr = color.r - palette[i].r;
+		dg = color.g - palette[i].g;
+		db = color.b - palette[i].b;
+		d = dr*dr + dg*dg + db*db; /* squared rgb euclidean distance */
+		if (d < best_d) {
+			best_d = d;
+			best_index = i;
+		}
+	}
+
+	/* cache so we don't keep doing the loop */
+	cache[key] = best_index;
+	return best_index;
+}
+
+
+int load_sprite(const char *filename) {
+	FILE *fp;
+	char magic[3];
+	int width, height, maxval;
+	int r, g, b;
+	int i, count;
+	int c;
+	unsigned char *data;
+	int sprite_id = -1;
+	RGB palette[256];
+	static int palette_initialized = 0;
+
+	if (!palette_initialized) {
+		vga_to_rgb(palette);
+		palette_initialized = 1;
+	}
+
+	/* I have a MAX_SPRITES constant right now that's primarily for dev stuff.
+	 * I'll either remove it or add a user-set variable for it */
+	for (i = 0; i < MAX_SPRITES; i++) {
+		if (!sprites[i].loaded) {
+			sprite_id = i;
+			break;
+		}
+	}
+
+	if (sprite_id == -1) {
+		printf("Error: No more sprite slots available\n");
+		return -1;
+	}
+
+	/* these printf errors probably wouldn't show in the programs cuz dos and shit. whatever */
+	fp = fopen(filename, "r");
+	if (!fp) {
+		printf("Error: Cannot open PPM file %s\n", filename);
+		return -1;
+	}
+
+	// Read PPM header
+	if (fscanf(fp, "%2s", magic) != 1) {
+		printf("Error: Invalid PPM format\n");
+		fclose(fp);
+		return -1;
+	}
+
+	if (strcmp(magic, "P3") != 0) {
+		printf("Error: Not a P3 PPM\n");
+		fclose(fp);
+		return -1;
+	}
+
+	/* skip comments */
+	c = getc(fp);
+	while (c == '#' || isspace(c)) {
+		if (c == '#') {
+			while (c != '\n' && c != EOF) {
+				c = getc(fp);
+			}
+		}
+		if (c != EOF) {
+			c = getc(fp);
+		}
+	}
+	ungetc(c, fp);
+
+	if (fscanf(fp, "%d %d", &width, &height) != 2) {
+		printf("Error: Cannot read PPM dimensions\n");
+		fclose(fp);
+		return -1;
+	}
+
+	c = getc(fp);
+	while (c == '#' || isspace(c)) {
+		if (c == '#') {
+			while (c != '\n' && c != EOF) {
+				c = getc(fp);
+			}
+		}
+		if (c != EOF) {
+			c = getc(fp);
+		}
+	}
+	ungetc(c, fp);
+
+	if (fscanf(fp, "%d", &maxval) != 1) {
+		printf("Error: Cannot read max value\n");
+		fclose(fp);
+		return -1;
+	}
+
+	if (maxval > 255) {
+		printf("Error: PPM max value > 255\n");
+		fclose(fp);
+		return -1;
+	}
+
+	data = (unsigned char *)malloc(width * height * 3);
+	if (!data) {
+		printf("Error: Cannot allocate memory for PPM data\n");
+		fclose(fp);
+		return -1;
+	}
+
+	count = 0;
+	for (i = 0; i < width * height; i++) {
+		if (fscanf(fp, "%d %d %d", &r, &g, &b) != 3) {
+			printf("Error: Cannot read PPM pixel data\n");
+			free(data);
+			fclose(fp);
+			return -1;
+		}
+
+		data[count++] = (unsigned char)((r * 255) / maxval);
+		data[count++] = (unsigned char)((g * 255) / maxval);
+		data[count++] = (unsigned char)((b * 255) / maxval);
+	}
+
+	fclose(fp);
+
+	/* put into sprites array */
+	sprites[sprite_id].width = width;
+	sprites[sprite_id].height = height;
+	sprites[sprite_id].data = data;
+	sprites[sprite_id].loaded = 1;
+	numLoadedSprites++;
+
+	return sprite_id;
+}
+
+void draw_sprite(int sprite_id, int x, int y) {
+	int i, j, index;
+	static int palette_initialized = 0;
+	unsigned char r, g, b;
+	unsigned char color;
+	RGB pixel_color;
+	RGB palette[256];
+
+	if (!palette_initialized) {
+		vga_to_rgb(palette);
+		palette_initialized = 1;
+	}
+
+	if (sprite_id < 0 || sprite_id >= MAX_SPRITES || !sprites[sprite_id].loaded) {
+		printf("Error: Invalid sprite ID\n");
+		return;
+	}
+
+	/* simple loop through sprite array */
+	for (j = 0; j < sprites[sprite_id].height; j++) {
+		for (i = 0; i < sprites[sprite_id].width; i++) {
+			index = (j * sprites[sprite_id].width + i) * 3;
+			r = sprites[sprite_id].data[index];
+			g = sprites[sprite_id].data[index + 1];
+			b = sprites[sprite_id].data[index + 2];
+
+			pixel_color.r = r;
+			pixel_color.g = g;
+			pixel_color.b = b;
+			color = find_closest_color(pixel_color, palette);
+
+			put_pixel(x + i, y + j, color);
+		}
+	}
+}
+
+void free_sprite(int sprite_id) {
+	if (sprite_id >= 0 && sprite_id < MAX_SPRITES && sprites[sprite_id].loaded) {
+		free(sprites[sprite_id].data);
+		sprites[sprite_id].loaded = 0;
+		numLoadedSprites--;
+	}
+}
+
+void free_all_sprites(void) {
+	int i;
+	for (i = 0; i < MAX_SPRITES; i++) {
+		if (sprites[i].loaded) {
+			free_sprite(i);
+		}
+	}
+}
+
