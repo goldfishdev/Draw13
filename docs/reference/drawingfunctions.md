@@ -135,7 +135,8 @@ void draw_ellipse(int cx, int cy, int width, int height, unsigned char color)
       
   Currently only draws filled ellipses. Called by `draw_circle`.
   
-  		### `draw_circle`
+### `draw_circle`
+
 ```c
 void draw_circle(int cx, int cy, int radius, unsigned char color)
 ```
