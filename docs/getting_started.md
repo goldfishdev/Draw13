@@ -1,7 +1,7 @@
 ﻿
 # Getting Started
 
-This tutorial is for Linux, so not all instructions will apply to other systems.
+This tutorial is partially for Linux, so not all instructions will apply to other systems.
 
 ## Requirements:
 
@@ -51,7 +51,11 @@ To use Draw13, you can either download the prebuilt library in [Releases](https:
 
 Sometimes running in the IDE works using the projects function. Sometimes it doesn't. I genuinely don't know why. I recommend just saving your file (F2) then leaving TC (Alt+F -> Q) then building your project manually. See [Tutorial 1's compile instructions.](tutorials/tutorial1.md).
 	
+
 ## Usage
+
+This probably doesn't work :(
+
 See [Tutorial 1 - Basic Program](tutorials/tutorial1.md) for a simple example.
 1. Use `#include "d13lib.h"`
 2. Go to Directories (Alt+O -> D) and set the Output and Source directories to your project.
@@ -60,12 +64,12 @@ See [Tutorial 1 - Basic Program](tutorials/tutorial1.md) for a simple example.
 =======
 
 ### Using with Turbo C++ 3.0
-As mentioned before, this sometimes works.
+As mentioned before, this ~~sometimes~~ NEVER works.
 1. Use Alt+O then D to open the Directories menu. 
 2. Make sure that Include is `C:\TC\INCLUDE` and Library is `C:\TC\LIB`.
 3. Set Output and Source to your project directory. 
 
-You can now run the program from inside of the IDE (Alt+R). Maybe. 
+You can ~~now~~ PROBABLY NOT run the program from inside of the IDE (Alt+R). ~~Maybe~~ DEFINITELY. 
 
 See [Tutorial 1 - Basic Program](tutorials/tutorial1.md) for your first program.
 

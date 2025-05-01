@@ -6,6 +6,8 @@ Draw13 is a simple graphics library for DOS. The 13 in Draw13 is short for Mode 
 Everything in this project is coded entirely in DOS using tools released before 1994. 
 Why? Because it's fun. 
 
+These docs aren't updated often, so the repository is probably ahead of what's here.
+
 See [Getting Started](getting_started.md) to install Turbo C and the library.
 See [Tutorial 1](tutorials/tutorial1.md) for a basic project setup tutorial.
 

@@ -1,5 +1,6 @@
 
 
+
 # Drawing Functions
 Also see [colors reference](colors.md).
 
@@ -16,7 +17,7 @@ void put_pixel(int x, int y, unsigned char color)
 		}
 This is the function that all Draw13 graphics use. `put_pixel` takes a position and color. It creates a far pointer `*vga` that points to the beginning of the video memory then sets the correct byte to the given color by calculating the offset (since each row in Mode 13h is 320 pixels).
 
-## Shapes - Basic
+## Shapes
 
 ### `draw_rect`
 ```c
@@ -109,3 +110,110 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned char color)
 					}
 				}
 			}
+		
+		### `draw_ellipse`
+```c
+void draw_ellipse(int cx, int cy, int width, int height, unsigned char color)
+```
+??? Implementation
+	
+		void draw_ellipse(int cx, int cy, int width, int height, unsigned char color)
+		{
+			int rx = width / 2;
+			int ry = height / 2;
+			int ry2 = ry * ry;
+			int x, y, dx, start, end, py;
+			float ratio, p;
+			for (y = -ry; y < ry; y++) {
+				x = (rx * isqrt(ry2 - y * y)) / ry;
+
+				for (dx = -x; dx < x; dx++) {
+					put_pixel(cx + dx, cy + y, color);
+				}
+			}
+		}
+      
+  Currently only draws filled ellipses. Called by `draw_circle`.
+  
+  		### `draw_circle`
+```c
+void draw_circle(int cx, int cy, int radius, unsigned char color)
+```
+??? Implementation
+	
+        
+		void draw_circle(int cx, int cy, int radius, unsigned char color)
+		{
+			int scaled = (radius * 4 / 3);
+			draw_ellipse(cx, cy, scaled, radius, color);
+		}
+      
+  Calls `draw_ellipse` with proper-ish scaling.
+
+### `draw_polygon`
+```c
+void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color)
+```
+??? Implementation
+	
+        void draw_polygon(struct Vector2 vertices[], int num_vertices, unsigned char color)
+		{
+				int i;
+				if (num_vertices < 2) return;
+				for (i = 0; i < num_vertices - 1; i++) {
+					draw_line(vertices[i].x, vertices[i].y,
+							vertices[i+1].x, vertices[i+1].y, color);
+			}
+			draw_line(vertices[num_vertices-1].x, vertices[num_vertices-1].y,
+					  vertices[0].x, vertices[0].y, color);
+		}
+Draws a polygon. 
+
+## Text
+
+### `draw_char`
+```c
+void draw_char(unsigned char ascii, int x, int y, unsigned char color)
+```
+??? Implementation
+	
+        void draw_char(unsigned char ascii, int x, int y, unsigned char color)
+		{
+			unsigned char byte;
+			unsigned char bit;
+			int font_offset;
+			int row, col;
+			font_offset = ascii * BYTES_PER_CHAR;
+			for (row = 0; row < CHAR_HEIGHT; row++) {
+				byte = DefaultFont[font_offset + row];
+				for (col = 0; col < CHAR_WIDTH; col++) {
+					bit = (byte >> (7 - col)) & 0x01;
+					if (bit) {
+						put_pixel(x + col, y + row, color);
+					}
+				}
+			}
+		}
+      
+  Draws a single character. Called by `draw_string`.
+  
+### `draw_string`
+```c
+void draw_string(const char* txt, int x, int y, unsigned char color)
+```
+??? Implementation
+	
+        
+		void draw_string(const char* txt, int x, int y, unsigned char color)
+		{
+			int i = 0;
+			int current_x = x;
+			while (txt[i] != '\0') {
+				if (current_x + CHAR_WIDTH >= 320) break;
+				draw_char(txt[i], current_x, y, color);
+				current_x += KERNING;
+				i++;
+		}	
+		}
+      
+  Draws a string.

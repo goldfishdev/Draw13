@@ -1010,7 +1010,8 @@ void draw_sprite(int sprite_id, int x, int y) {
 	}
 }
 
-void free_sprite(int sprite_id) {
+void free_sprite(int sprite_id)
+{
 	if (sprite_id >= 0 && sprite_id < MAX_SPRITES && sprites[sprite_id].loaded) {
 		free(sprites[sprite_id].data);
 		sprites[sprite_id].loaded = 0;
@@ -1018,7 +1019,8 @@ void free_sprite(int sprite_id) {
 	}
 }
 
-void free_all_sprites(void) {
+void free_all_sprites(void)
+{
 	int i;
 	for (i = 0; i < MAX_SPRITES; i++) {
 		if (sprites[i].loaded) {

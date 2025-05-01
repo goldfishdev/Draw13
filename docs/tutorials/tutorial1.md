@@ -3,10 +3,11 @@
 
 Make sure you've followed the instructions in  [Getting Started](getting_started.md)
 
-Once you have the IDE and library set up, create a new file named `HELLO.C`. 
+Once you have the IDE and library set up, create a new file named `MAIN.C`. 
 All programming using Draw13 is done using C89, which has a [few major differences](https://cw.fel.cvut.cz/old/_media/courses/be5b99cpl/lectures/be5b99cpl-lec10-handout-3x3.pdf) from modern C.
 
 Here is a simple Hello World file. Don't worry, I'll explain everything afterwards:
+
 ```c
 #include "d13lib.h"
 
@@ -21,7 +22,7 @@ int main() {
 
 `#include "d13lib.h"` 
 
-:	includes the library. This is assuming that the `D13LIB.LIB` file is in the same folder as your `HELLO.C`.  
+:	includes the library. This is assuming that the `D13LIB.LIB` file is in the same folder as your `MAIN.C`.  
 
 `set_vga_mode()`[^1] 
 
@@ -29,7 +30,7 @@ int main() {
 
 `getch()`[^2] 
 
-:	waits for any key input. 
+:	waits for any key input. Part of <dos.h>
 
 `set_text_mode()`[^3] 
 
@@ -39,7 +40,11 @@ int main() {
 
 	See [functions reference](/reference/systemfunctions) for more in-depth information.
 
-Compile and run in the IDE (if it actually works. See [USAGE WARNING](getting_started)) by using (`Alt+R->Enter`) or in the command line by running `tcc -IC:\TC\INCLUDE -LC:\TC\LIB -ml HELLO.C D13LIB.lib`. You should see the text "Hello World!" in the top-left of the screen. Press any key to exit. 
+Compile ~~and run in the IDE (if it actually works. See [USAGE WARNING](getting_started)) by using (`Alt+R->Enter`) or~~ in the command line by running 
+
+`tcc -IC:\TC\INCLUDE -LC:\TC\LIB -ml MAIN.C D13LIB.lib`
+
+You should see the text "Hello World!" in the top-left of the screen. Press any key to exit. 
 
 By default, `printf()` puts text on the screen as if it were in the command line. I use this primarily for debugging, but it could also be used to show [ASCII art](https://en.wikipedia.org/wiki/ASCII_art). 
 

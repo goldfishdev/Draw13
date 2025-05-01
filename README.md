@@ -9,8 +9,8 @@ Unfortunately, I don't have a DOS PC (they're expensive now!), so I've been deve
 
 Expect more documentation soon!
 
-## This is VERY EXPERIMENTAL!!!
-This is a very, very, very early version of this library. Don't expect anything to be functional.
+## This is EXPERIMENTAL!!!
+This is an early version of this library. Don't expect anything to be functional.
 
 I'm also a beginner at C. 
 
@@ -24,10 +24,6 @@ See [Building From Source](https://draw13.readthedocs.io/en/latest/getting_start
 
 ## Contributing
 
-Contributions are always welcome!
-
-Unfortunately, I haven't written development instructions yet, so you'll have to figure it out yourself. 
-
-If possible, I'd like for you to do all of your programming and development in DOS. That's my challenge for this project. 
+Contributions are always welcome! 
 
 If you have a DOS PC, testing is greatly appreciated! 
