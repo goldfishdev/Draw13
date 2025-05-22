@@ -10,9 +10,6 @@
 unsigned char far buffer[320L*200]; // create buffer
 volatile char keyStates[128];
 
-Sprite sprites[MAX_SPRITES];
-int numLoadedSprites = 0;
-
 // sets mode to 13h. might work for other modes. idk
 void set_vga_mode()
 {
@@ -775,9 +772,6 @@ const unsigned char DefaultFont[256 * BYTES_PER_CHAR] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-typedef struct {
-	unsigned char r, g, b;
-} RGB;
 
 void vga_to_rgb(RGB palette[256])
 {
@@ -839,193 +833,178 @@ int find_closest_color(RGB color, RGB palette[256])
 		}
 	}
 
-	/* cache so we don't keep doing the loop */
 	cache[key] = best_index;
 	return best_index;
 }
 
-
-int load_sprite(const char *filename) {
-	FILE *fp;
-	char magic[3];
-	int width, height, maxval;
-	int r, g, b;
-	int i, count;
-	int c;
-	unsigned char *data;
-	int sprite_id = -1;
-	RGB palette[256];
-	static int palette_initialized = 0;
-
-	if (!palette_initialized) {
-		vga_to_rgb(palette);
-		palette_initialized = 1;
-	}
-
-	/* I have a MAX_SPRITES constant right now that's primarily for dev stuff.
-	 * I'll either remove it or add a user-set variable for it */
-	for (i = 0; i < MAX_SPRITES; i++) {
-		if (!sprites[i].loaded) {
-			sprite_id = i;
-			break;
-		}
-	}
-
-	if (sprite_id == -1) {
-		printf("Error: No more sprite slots available\n");
-		return -1;
-	}
-
-	/* these printf errors probably wouldn't show in the programs cuz dos and shit. whatever */
-	fp = fopen(filename, "r");
-	if (!fp) {
-		printf("Error: Cannot open PPM file %s\n", filename);
-		return -1;
-	}
-
-	// Read PPM header
-	if (fscanf(fp, "%2s", magic) != 1) {
-		printf("Error: Invalid PPM format\n");
-		fclose(fp);
-		return -1;
-	}
-
-	if (strcmp(magic, "P3") != 0) {
-		printf("Error: Not a P3 PPM\n");
-		fclose(fp);
-		return -1;
-	}
-
-	/* skip comments */
-	c = getc(fp);
-	while (c == '#' || isspace(c)) {
-		if (c == '#') {
-			while (c != '\n' && c != EOF) {
-				c = getc(fp);
-			}
-		}
-		if (c != EOF) {
-			c = getc(fp);
-		}
-	}
-	ungetc(c, fp);
-
-	if (fscanf(fp, "%d %d", &width, &height) != 2) {
-		printf("Error: Cannot read PPM dimensions\n");
-		fclose(fp);
-		return -1;
-	}
-
-	c = getc(fp);
-	while (c == '#' || isspace(c)) {
-		if (c == '#') {
-			while (c != '\n' && c != EOF) {
-				c = getc(fp);
-			}
-		}
-		if (c != EOF) {
-			c = getc(fp);
-		}
-	}
-	ungetc(c, fp);
-
-	if (fscanf(fp, "%d", &maxval) != 1) {
-		printf("Error: Cannot read max value\n");
-		fclose(fp);
-		return -1;
-	}
-
-	if (maxval > 255) {
-		printf("Error: PPM max value > 255\n");
-		fclose(fp);
-		return -1;
-	}
-
-	data = (unsigned char *)malloc(width * height * 3);
-	if (!data) {
-		printf("Error: Cannot allocate memory for PPM data\n");
-		fclose(fp);
-		return -1;
-	}
-
-	count = 0;
-	for (i = 0; i < width * height; i++) {
-		if (fscanf(fp, "%d %d %d", &r, &g, &b) != 3) {
-			printf("Error: Cannot read PPM pixel data\n");
-			free(data);
-			fclose(fp);
-			return -1;
-		}
-
-		data[count++] = (unsigned char)((r * 255) / maxval);
-		data[count++] = (unsigned char)((g * 255) / maxval);
-		data[count++] = (unsigned char)((b * 255) / maxval);
-	}
-
-	fclose(fp);
-
-	/* put into sprites array */
-	sprites[sprite_id].width = width;
-	sprites[sprite_id].height = height;
-	sprites[sprite_id].data = data;
-	sprites[sprite_id].loaded = 1;
-	numLoadedSprites++;
-
-	return sprite_id;
-}
-
-void draw_sprite(int sprite_id, int x, int y) {
-	int i, j, index;
-	static int palette_initialized = 0;
-	unsigned char r, g, b;
-	unsigned char color;
-	RGB pixel_color;
-	RGB palette[256];
-
-	if (!palette_initialized) {
-		vga_to_rgb(palette);
-		palette_initialized = 1;
-	}
-
-	if (sprite_id < 0 || sprite_id >= MAX_SPRITES || !sprites[sprite_id].loaded) {
-		printf("Error: Invalid sprite ID\n");
-		return;
-	}
-
-	/* simple loop through sprite array */
-	for (j = 0; j < sprites[sprite_id].height; j++) {
-		for (i = 0; i < sprites[sprite_id].width; i++) {
-			index = (j * sprites[sprite_id].width + i) * 3;
-			r = sprites[sprite_id].data[index];
-			g = sprites[sprite_id].data[index + 1];
-			b = sprites[sprite_id].data[index + 2];
-
-			pixel_color.r = r;
-			pixel_color.g = g;
-			pixel_color.b = b;
-			color = find_closest_color(pixel_color, palette);
-
-			put_pixel(x + i, y + j, color);
-		}
-	}
-}
-
-void free_sprite(int sprite_id)
+Image* load_pcx(const char* filename)
 {
-	if (sprite_id >= 0 && sprite_id < MAX_SPRITES && sprites[sprite_id].loaded) {
-		free(sprites[sprite_id].data);
-		sprites[sprite_id].loaded = 0;
-		numLoadedSprites--;
-	}
+    FILE* file;
+    PCXHeader header;
+    Image* image;
+    unsigned char* buffer;
+    unsigned char* dest;
+    unsigned char byte, count;
+    int i, x, y;
+    long file_size, data_start;
+
+    file = fopen(filename, "rb");
+    if (!file) {
+        printf("Error: Cannot open file %s\n", filename);
+        return NULL;
+    }
+
+    printf("File opened successfully\n");
+
+    if (fread(&header, sizeof(PCXHeader), 1, file) != 1) {
+        printf("Error: Cannot read PCX header\n");
+        fclose(file);
+        return NULL;
+    }
+
+    printf("Header read: man=%d, bpp=%d, planes=%d\n",
+           header.manufacturer, header.bits_per_pixel, header.nplanes);
+
+    /* verify 256 colors */
+    if (header.manufacturer != 10 || header.bits_per_pixel != 8 || header.nplanes != 1) {
+        printf("Error: Invalid PCX format\n");
+        fclose(file);
+        return NULL;
+    }
+
+    image = (Image*)malloc(sizeof(Image));
+    if (!image) {
+        fclose(file);
+        return NULL;
+    }
+
+    image->width = header.xmax - header.xmin + 1;
+    image->height = header.ymax - header.ymin + 1;
+
+    image->data = (unsigned char*)malloc(image->width * image->height);
+    if (!image->data) {
+        free(image);
+        fclose(file);
+        return NULL;
+    }
+
+    dest = image->data;
+    for (y = 0; y < image->height; y++) {
+        x = 0;
+        while (x < header.bytes_per_line) {
+            byte = fgetc(file);
+            if (byte == EOF) {
+                free(image->data);
+                free(image);
+                fclose(file);
+                return NULL;
+            }
+
+            if ((byte & 0xC0) == 0xC0) {
+                count = byte & 0x3F;
+                byte = fgetc(file);
+                if (byte == EOF) {
+                    free(image->data);
+                    free(image);
+                    fclose(file);
+                    return NULL;
+                }
+                while (count-- && x < image->width) {
+                    if (x < image->width) {
+                        *dest++ = byte;
+                    }
+                    x++;
+                }
+            } else {
+                if (x < image->width) {
+                    *dest++ = byte;
+                }
+                x++;
+            }
+        }
+    }
+
+    fseek(file, -769, SEEK_END);  /* 768 bytes palette + 1 byte marker */
+    if (fgetc(file) == 12) {
+        for (i = 0; i < 256; i++) {
+            image->palette[i].r = fgetc(file);
+            image->palette[i].g = fgetc(file);
+            image->palette[i].b = fgetc(file);
+        }
+    } else {
+        /* greyscale if no palette */
+        for (i = 0; i < 256; i++) {
+            image->palette[i].r = i;
+            image->palette[i].g = i;
+            image->palette[i].b = i;
+        }
+    }
+
+    fclose(file);
+    return image;
 }
 
-void free_all_sprites(void)
+void free_image(Image* image)
 {
-	int i;
-	for (i = 0; i < MAX_SPRITES; i++) {
-		if (sprites[i].loaded) {
-			free_sprite(i);
-		}
-	}
+    if (image) {
+        if (image->data) {
+            free(image->data);
+        }
+        free(image);
+    }
 }
 
+void draw_image(Image* image, int x, int y)
+{
+    int px, py;
+    int src_x, src_y;
+    unsigned char pixel;
+
+    if (!image || !image->data) return;
+
+    for (py = 0; py < image->height; py++) {
+        src_y = y + py;
+        if (src_y < 0 || src_y >= 200) continue;
+
+        for (px = 0; px < image->width; px++) {
+            src_x = x + px;
+            if (src_x < 0 || src_x >= 320) continue;
+
+            pixel = image->data[py * image->width + px];
+            put_pixel(src_x, src_y, pixel);
+        }
+    }
+}
+
+void draw_image_scaled(Image* image, int x, int y, int new_width, int new_height)
+{
+    int px, py;
+    int src_x, src_y;
+    int orig_x, orig_y;
+    unsigned char pixel;
+
+    if (!image || !image->data) return;
+
+    for (py = 0; py < new_height; py++) {
+        src_y = y + py;
+        if (src_y < 0 || src_y >= 200) continue;
+
+        orig_y = (py * image->height) / new_height;
+
+        for (px = 0; px < new_width; px++) {
+            src_x = x + px;
+            if (src_x < 0 || src_x >= 320) continue;
+
+            orig_x = (px * image->width) / new_width;
+            pixel = image->data[orig_y * image->width + orig_x];
+            put_pixel(src_x, src_y, pixel);
+        }
+    }
+}
+
+void set_image_palette(Image* image)
+{
+    if (image) {
+        rgb_to_vga(image->palette);
+    }
+}
